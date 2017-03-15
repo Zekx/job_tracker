@@ -1,6 +1,10 @@
 package model;
 
-public class Unit {
+import java.io.Serializable;
+
+public class Unit implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private int id; // Unit's unique id.
 	private String name; // Name of the department.
 

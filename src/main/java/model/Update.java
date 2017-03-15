@@ -1,7 +1,10 @@
 package model;
 
-public class Update {
+import java.io.Serializable;
 
+public class Update implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private int id;
 	private int ticketId;
 	

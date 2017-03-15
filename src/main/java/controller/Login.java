@@ -14,6 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import external.ActiveDirectory;
 import function.LoginFunction;
 import function.RetrieveData;
@@ -29,22 +32,18 @@ public class Login extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String user = request.getParameter("username");
 		String password = request.getParameter("password");
+		Logger loginLog = LoggerFactory.getLogger(Login.class);
+
 		LoginFunction lf = new LoginFunction();
-		RetrieveData rd = null;
+
+		DataSource ds = (DataSource)request.getServletContext().getAttribute("dbSource");
+		RetrieveData rd = new RetrieveData((DataSource)request.getServletContext().getAttribute("dbSource"));
+		
     	int check = 4;
     	try{
-			if (Boolean.valueOf(request.getServletContext().getAttribute("onServer").toString())){
-				DataSource ds = (DataSource)request.getServletContext().getAttribute("dbSource");
-				rd = new RetrieveData(ds);
-				check = lf.checkSystemAccountDBSource(ds, user, password);
-			}
-			else{
-				rd = new RetrieveData();
-				check = lf.checkSystemAccount(user, password);
-				System.out.println("Login location");
-			}
+    		check = lf.checkSystemAccountDBSource(ds, user, password);
     	} catch (SQLException sqle) {
-			System.out.print(sqle.toString());
+			loginLog.error("SQL Error @ Login.", sqle);
 			request.setAttribute("errorMessage", "Something went wrong, please try again later!");
 			request.getRequestDispatcher("/WEB-INF/Login.jsp").forward(request, response);
 			return;
@@ -63,21 +62,32 @@ public class Login extends HttpServlet {
 			request.getSession().setAttribute("lastname", lf.getSystemAccount().getLastName());
 			request.getSession().setAttribute("phoneNumber", lf.getSystemAccount().getPhoneNumber());
 			request.getSession().setAttribute("email", lf.getSystemAccount().getEmail());
+			request.getSession().setAttribute("department", lf.getSystemAccount().getDepartment());
 			request.getSession().setAttribute("unit_id", lf.getSystemAccount().getUnitId());
 			request.getSession().setAttribute("position", lf.getSystemAccount().getStatus());
 			
 			try {
 				request.getSession().setAttribute("tickets", rd.getUserTicket(user, lf.getSystemAccount().getStatus(), lf.getSystemAccount().getUnitId()));
 			} catch (SQLException e) {
-				e.printStackTrace();
+				loginLog.error("SQL Error @ Login (setting tickets).", e);
 			}
 			
 			if( lf.getSystemAccount().getLastName().isEmpty() || lf.getSystemAccount().getPhoneNumber().isEmpty() || 
 					lf.getSystemAccount().getEmail().isEmpty() ){
-				response.sendRedirect("FirstLoginUpdate");
+				
+					response.sendRedirect("FirstLoginUpdate");
+				
 			}
 			else{
-				response.sendRedirect("Home");
+				if(request.getSession().getAttribute("dReferred") != null){
+						int id = Integer.parseInt(request.getSession().getAttribute("dReferred").toString());
+						request.getSession().removeAttribute("dReferred");
+						response.sendRedirect("Details?id="+id);
+				}
+				else{
+					response.sendRedirect("Home");
+				}
+			
 			}
     	}
     	else{
@@ -109,6 +119,7 @@ public class Login extends HttpServlet {
 	        			request.getSession().setAttribute("lastname", "");
 	        			request.getSession().setAttribute("email", emailAD);
 	        			request.getSession().setAttribute("phoneNumber", "");
+	        			request.getSession().setAttribute("department", "");
 	        			request.getSession().setAttribute("unit_id", 0);
 	        			request.getSession().setAttribute("position", 3);
 	        			
@@ -127,6 +138,7 @@ public class Login extends HttpServlet {
 	        			request.getSession().setAttribute("lastname", lf.getSystemAccount().getLastName());
 	        			request.getSession().setAttribute("phoneNumber", lf.getSystemAccount().getPhoneNumber());
 	        			request.getSession().setAttribute("email", lf.getSystemAccount().getEmail());
+	        			request.getSession().setAttribute("department", lf.getSystemAccount().getDepartment());
 	        			request.getSession().setAttribute("unit_id", lf.getSystemAccount().getUnitId());
 	        			request.getSession().setAttribute("position", lf.getSystemAccount().getStatus());
 	        			
@@ -136,15 +148,24 @@ public class Login extends HttpServlet {
 	        			try {
 	        				request.getSession().setAttribute("tickets", rd.getUserTicket(user, lf.getSystemAccount().getStatus(), lf.getSystemAccount().getUnitId()));
 	        			} catch (SQLException e) {
-	        				e.printStackTrace();
+	        				loginLog.error("SQL Error @ Login (setting tickets).", e);
 	        			}
 	        			
 	        			if( lf.getSystemAccount().getLastName().isEmpty() || lf.getSystemAccount().getPhoneNumber().isEmpty() || 
 	        					lf.getSystemAccount().getEmail().isEmpty() ){
-	        				response.sendRedirect("FirstLoginUpdate");
+
+	        					response.sendRedirect("FirstLoginUpdate");
+	        				
 	        			}
 	        			else{
-	        				response.sendRedirect("Home");
+	        				if(request.getSession().getAttribute("dReferred") != null){
+	    						int id = Integer.parseInt(request.getSession().getAttribute("dReferred").toString());
+	    						request.getSession().removeAttribute("dReferred");
+	    						response.sendRedirect("Details?id="+id);
+		    				}
+		    				else{
+		    					response.sendRedirect("Home");
+		    				}
 	        			}
 	            	}
 	            	}else{
@@ -162,29 +183,29 @@ public class Login extends HttpServlet {
 	        	 * 	This section include both situation when AD is down or login is incorrect.
 	        	 * 
 	        	 */
-	        	activeDirectory.closeLdapConnection();
+	            	activeDirectory.closeLdapConnection();
 	            
-	    		if(check == 0 || check == 1)	
-	    		{
-	    			if(e instanceof NamingException)
-	    			{	
-	    				// The if clause applies when AD return an error of invalid password or username.
-		    			// Check = 0 means incorrect AD login and user does not belong in this database.
-		    			// Check = 1 means the user belongs to the database but incorrect password.
-	    				
+		    		if(check == 0 || check == 1)	
+		    		{
+		    			if(e instanceof NamingException)
+		    			{	
+		    				// The if clause applies when AD return an error of invalid password or username.
+			    			// Check = 0 means incorrect AD login and user does not belong in this database.
+			    			// Check = 1 means the user belongs to the database but incorrect password.
+		    				
+							request.setAttribute("errorMessage", "Invalid username or password, please try again!");
+							request.getRequestDispatcher("/WEB-INF/Login.jsp").forward(request, response);
+		    			}
+		    			else{
+		    				request.setAttribute("errorMessage", "CSULA account authentication seems to be down, please try again later!");
+							request.getRequestDispatcher("/WEB-INF/Login.jsp").forward(request, response);
+		    			}
+		    		}
+		    		else
+		    		{
 						request.setAttribute("errorMessage", "Invalid username or password, please try again!");
 						request.getRequestDispatcher("/WEB-INF/Login.jsp").forward(request, response);
-	    			}
-	    			else{
-	    				request.setAttribute("errorMessage", "CSULA account authentication seems to be down, please try again later!");
-						request.getRequestDispatcher("/WEB-INF/Login.jsp").forward(request, response);
-	    			}
-	    		}
-	    		else
-	    		{
-					request.setAttribute("errorMessage", "Invalid username or password, please try again!");
-					request.getRequestDispatcher("/WEB-INF/Login.jsp").forward(request, response);
-	    		}
+		    		}
 
     		}
 			

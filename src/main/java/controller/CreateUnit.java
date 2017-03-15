@@ -2,7 +2,6 @@ package controller;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -13,9 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
-import org.apache.commons.dbutils.DbUtils;
-
-import function.RetrieveData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @WebServlet("/CreateUnit")
@@ -44,40 +42,28 @@ public class CreateUnit extends HttpServlet {
 		}
 		else
 		{
-		Connection c = null;
-		PreparedStatement pstmt = null;
-		try {
-			if(Boolean.valueOf(request.getServletContext().getAttribute("onServer").toString()))
-			{
-				c = ((DataSource)request.getServletContext().getAttribute("dbSource")).getConnection();
-			}
-			else{
-				String url = "jdbc:mysql://cs3.calstatela.edu/cs4961stu01";
-				String db_user = "cs4961stu01";
-				String db_pass = ".XCGG1Bc";
-
-				c = DriverManager.getConnection(url, db_user, db_pass);
+			Logger createUnitLog = LoggerFactory.getLogger(CreateUnit.class);
+			try (Connection c = ((DataSource)request.getServletContext().getAttribute("dbSource")).getConnection()){
+				
+				String createTicket = "insert into units (unitName,phone,location,email, description) values (?,?,?,?,?)";
+				try(PreparedStatement pstmt = c.prepareStatement(createTicket)){
+					pstmt.setString(1, unitName);
+					pstmt.setString(2, phone);
+					pstmt.setString(3, location);
+					pstmt.setString(4, email);
+					pstmt.setString(5, description);			
+					pstmt.executeUpdate();
+				}
+				
+				createUnitLog.info("System Admin. " + request.getSession().getAttribute("user").toString()
+						+ " has created a new unit: " + unitName + ".");
+			} catch (SQLException e) {
+				createUnitLog.error("SQL Error @ CreateUnit.", e);
+			} catch (Exception e){
+				createUnitLog.error("Non-SQL Error @ CreateUnit.", e);
 			}
 			
-			String createTicket = "insert into units (unitName,phone,location,email, description) values (?,?,?,?,?)";
-			pstmt = c.prepareStatement(createTicket);
-			pstmt.setString(1, unitName);
-			pstmt.setString(2, phone);
-			pstmt.setString(3, location);
-			pstmt.setString(4, email);
-			pstmt.setString(5, description);			
-			pstmt.executeUpdate();
-			pstmt.close();
-			c.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-
-			DbUtils.closeQuietly(pstmt);
-			DbUtils.closeQuietly(c);
-		}
-		
-		response.sendRedirect("Home");
+			response.sendRedirect("Home");
 		}
 	}
 

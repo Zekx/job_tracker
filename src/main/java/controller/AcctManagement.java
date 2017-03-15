@@ -2,7 +2,6 @@ package controller;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -14,26 +13,40 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
-import org.apache.commons.dbutils.DbUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import function.RetrieveData;
+/**
+ * The AcctManagement Servlet, which corresponds to AcctManagement.jsp, hosts a 
+ * variety of functions that is only accessible by the System Administrator. Some of the 
+ * functions include adding new users (special accounts under the system) / units and editing them.
+ */
 
 @WebServlet("/AcctManagement")
 public class AcctManagement extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-
+	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		RetrieveData rd = null;
-		if (Boolean.valueOf(request.getServletContext().getAttribute("onServer").toString())){
-			rd = new RetrieveData((DataSource)request.getServletContext().getAttribute("dbSource"));
+		
+		if(request.getSession().getAttribute("position") != null &&
+				request.getSession().getAttribute("user") != null) // Check to see if the attributes are valid.
+		{
+			if(Integer.parseInt(request.getSession().getAttribute("position").toString()) == 0){ // Check to see if the user is a system administrator.
+				RetrieveData rd = new RetrieveData((DataSource)request.getServletContext().getAttribute("dbSource"));
+				
+				request.setAttribute("userList", rd.getAllUsers());
+				request.setAttribute("positionList", Arrays.asList("USER", "TECHNICIAN", "SUPERVISING TECHNICIAN", "SYSTEM ADMINISTRATOR"));
+				request.setAttribute("unitList", rd.getAllUnits());		
+				request.getRequestDispatcher("/WEB-INF/AcctManagement.jsp").forward(request, response);
+			}
+			else{
+				response.sendRedirect("Home"); // Not a system administrator.
+			}
 		}
 		else{
-			rd = new RetrieveData();
+			response.sendRedirect("Login"); // Not login.
 		}
-		request.setAttribute("userList", rd.getAllUsers());
-		request.setAttribute("positionList", Arrays.asList("USER", "TECHNICIAN", "SUPERVISING TECHNICIAN", "SYSTEM ADMINISTRATOR"));
-		request.setAttribute("unitList", rd.getAllUnits());		
-		request.getRequestDispatcher("/WEB-INF/AcctManagement.jsp").forward(request, response);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -50,6 +63,10 @@ public class AcctManagement extends HttpServlet {
 			String phoneNumber = request.getParameter("phoneNumber");
 			String Position = request.getParameter("Position"); 
 			int UnitId = Integer.parseInt(request.getParameter("units").toString());
+			String department = "";
+			if(request.getParameter("department") != null){
+				department = request.getParameter("department").toString();
+			}
 
 			if(firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || phoneNumber.isEmpty() || Position.isEmpty() || username.isEmpty())
 			{
@@ -66,10 +83,8 @@ public class AcctManagement extends HttpServlet {
 
 			}
 			else{
-				Connection c = null;
-				PreparedStatement pstmt2 = null;
-				
 				int position;
+				Logger acctManageLog = LoggerFactory.getLogger(AcctManagement.class);
 				
 				if(Position.equals("SYSTEM ADMINISTRATOR")){
 					position = 0;
@@ -84,51 +99,48 @@ public class AcctManagement extends HttpServlet {
 					position = 3;
 				}
 				
-				try
-				{
-					if(Boolean.valueOf(request.getServletContext().getAttribute("onServer").toString()))
-					{
-						c = ((DataSource)request.getServletContext().getAttribute("dbSource")).getConnection();
-					}
-					else{
-						String url = "jdbc:mysql://cs3.calstatela.edu/cs4961stu01";
-						String db_user = "cs4961stu01";
-						String db_pass = ".XCGG1Bc";
-	
-						c = DriverManager.getConnection(url, db_user, db_pass);
-					}
-					String insert_user = "insert into users (firstname, lastname, pass, username, phone, email, position, unit_id) values(?, ?, ?, ?, ?, ?, ?,?)";
-					pstmt2 = c.prepareStatement(insert_user);
-					pstmt2.setString(1, firstName);
-					pstmt2.setString(2, lastName);
-					pstmt2.setString(3, org.apache.commons.codec.digest.DigestUtils.sha256Hex(password));
-					pstmt2.setString(4, username);
-					pstmt2.setString(5, phoneNumber);
-					pstmt2.setString(6, email);
-					pstmt2.setInt(7, position);
-					pstmt2.setInt(8, UnitId);
-
-					pstmt2.execute();
-
-					pstmt2.close();
-					c.close();
-
-				} catch (SQLException e) {
-
-					DbUtils.closeQuietly(pstmt2);
-					DbUtils.closeQuietly(c);
+				try(Connection c = ((DataSource)request.getServletContext().getAttribute("dbSource")).getConnection()){
+					String insert_user = "insert into users (firstname, lastname, pass, username, "
+							+ "phone, email, department, position, unit_id) values(?, ?, ?, ?, ?, ?, ?, ?,?)";
 					
-					e.printStackTrace();
-				}finally
-				{
-					DbUtils.closeQuietly(pstmt2);
-					DbUtils.closeQuietly(c);
-				}
-				if(request.getSession().getAttribute("errorMessage")!= null){
-					request.removeAttribute("errorMessage");
+					try(PreparedStatement pstmt2 = c.prepareStatement(insert_user)){
+						pstmt2.setString(1, firstName);
+						pstmt2.setString(2, lastName);
+						pstmt2.setString(3, org.apache.commons.codec.digest.DigestUtils.sha256Hex(password));
+						pstmt2.setString(4, username);
+						pstmt2.setString(5, phoneNumber);
+						pstmt2.setString(6, email);
+						pstmt2.setString(7, department);
+						pstmt2.setInt(8, position);
+						pstmt2.setInt(9, UnitId);
+						pstmt2.executeUpdate();
+						
+						acctManageLog.info("System Admin. " + request.getSession().getAttribute("user").toString()
+								+ " has created a new user: " + "\n"
+								+ "User: " + username + "\n"
+								+ "First name: " + firstName + "\n"
+								+ "Last name: " + lastName + "\n"
+								+ "Phone Number: " + phoneNumber + "\n"
+								+ "Email: " + email + "\n"
+								+ "Department: " + department + "\n"
+								+ "Position: " + position + "\n"
+								+ "Unit: " + UnitId);
+					}
+					
+					RetrieveData rd = new RetrieveData((DataSource)request.getServletContext().getAttribute("dbSource"));
+					request.setAttribute("userList", rd.getAllUsers());
+					request.setAttribute("unitList", rd.getAllUnits());
+
+					request.setAttribute("positionList", Arrays.asList("USER", "TECHNICIAN", "SUPERVISING TECHNICIAN", "SYSTEM ADMINISTRATOR"));
+					request.setAttribute("successMessage", "Successfully created a new user!");
+					request.getRequestDispatcher("/WEB-INF/AcctManagement.jsp").forward(request, response);	
+					
+				}catch(SQLException e){
+					acctManageLog.error("SQL Error @ AcctManagement.", e);
+				}catch(Exception e){
+					acctManageLog.error("Non-SQL Error @ AcctManagement.", e);
 				}
 			}
-			request.getRequestDispatcher("/WEB-INF/Home.jsp").forward(request, response);	
 		}
 
 	}

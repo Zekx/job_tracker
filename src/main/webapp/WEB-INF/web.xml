@@ -14,11 +14,23 @@
     <listener-class>function.Initialization</listener-class>
   </listener>
   <context-param>
-    <param-name>onServer</param-name>
-    <param-value>false</param-value>
+    <param-name>domain</param-name>
+    <param-value>cs3.calstatela.edu:4046/techit_production/</param-value>
   </context-param>
   <context-param>
-  	<param-name>domain</param-name>
-  	<param-value>cs3.calstatela.edu:4046/techit_production/</param-value>
+    <param-name>dbURL</param-name>
+    <param-value>jdbc:mysql://localhost/cs4961stu01</param-value>
+  </context-param>
+  <context-param>
+    <param-name>dbUser</param-name>
+    <param-value>cs4961stu01</param-value>
+  </context-param>
+  <context-param>
+    <param-name>dbPass</param-name>
+    <param-value>.XCGG1Bc</param-value>
+  </context-param>
+  <context-param>
+  	<param-name>departmentList</param-name>
+  	<param-value>Civil Engineering,Computer Science,Electrical and Computer Engineering,Mechanical Engineering,Technology</param-value>
   </context-param>
 </web-app>

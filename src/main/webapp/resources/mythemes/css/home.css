@@ -3,3 +3,10 @@
 #accordion{
 	background:white;
 }
+
+.td{
+	max-width: 30%;
+	word-wrap: break-word;
+	word-break: break-all;
+	white-space: normal;
+}

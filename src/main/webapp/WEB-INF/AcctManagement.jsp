@@ -148,6 +148,7 @@ ul.tab li a:focus, .active {
 					<th>Last Name</th>
 					<th>Phone Number</th>
 					<th>Email</th>
+					<th>Department</th>
 					<th>Position</th>
 					<th>Unit</th>
 				</tr>
@@ -162,6 +163,7 @@ ul.tab li a:focus, .active {
 						<td>${user.lastName}</td>
 						<td>${user.phoneNumber}</td>
 						<td>${user.email}</td>
+						<td>${user.department }</td>
 						<td>${user.statusString}</td>
 						<td>${user.unitId}</td>
 					</tr>
@@ -219,6 +221,14 @@ ul.tab li a:focus, .active {
 					</select>
 					</label>
 				</div>
+				<div class="form-group col-xs-5 col-md-5">
+					<label for="department">Department</label>
+					<select id="department" name ="department">
+					 	<c:forEach items="${departmentList}" var="dVar">
+							<option value="${dVar}">${dVar}</option>
+						</c:forEach>
+					</select> 
+				</div>
 				<div class="form-group col-xs-10 col-md-10">
 					<b>NOTE: <font color="red">*</font> means that the field is
 						required.
@@ -232,7 +242,7 @@ ul.tab li a:focus, .active {
 			</form>
 		</div>
 	</div>
-	</div><div id="SearchUnit" class="tabcontent">
+	<div id="SearchUnit" class="tabcontent">
 		<h3>Search User</h3>
 		<table class="table table-striped table-bordered table-hover" id="unitsTable">
 			<thead class="thead-inverse">

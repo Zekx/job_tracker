@@ -1,7 +1,10 @@
-package model;
+ package model;
 
-public class User {
+import java.io.Serializable;
 
+public class User implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private int id; 				// User's unique id
 	private String firstName; 		// User's first name
 	private String lastName; 		// User's last name
@@ -24,6 +27,8 @@ public class User {
 
 	private String phoneNumber;
 	
+	private String department;
+	
 	private String email;
 	
 	private Position status;
@@ -37,12 +42,12 @@ public class User {
 		this.lastName = lastname;
 		this.userName = username;
 		this.status = Position.USER;
-		this.unitId= 0; 				// User does not belongs to any unit\
+		this.unitId = 0; 				// User does not belongs to any unit\
 	}
 
 	// Full user paramenter constructor
-	public User(int id, String firstname, String lastname, String username, String phone, String email, int position, 
-			int unit_id)
+	public User(int id, String firstname, String lastname, String username, String phone, String email,
+			String department,int position, int unit_id)
 	{
 		this.id = id;
 		this.firstName = firstname;
@@ -50,6 +55,7 @@ public class User {
 		this.userName = username;
 		this.phoneNumber = phone;
 		this.email = email;
+		this.department = department;
 		switch(position)
 		{
 			case 0:
@@ -111,6 +117,15 @@ public class User {
 		this.phoneNumber = phoneNumber;
 	}
 
+	public String getDepartment() {
+		return this.department;
+	}
+
+	public void setDepartment(String department) {
+		this.department = department;
+	}
+
+	
 	public String getEmailFromUsername() {
 		return userName + "@calstatela.edu"; // Since username has the same
 												// header as email with the

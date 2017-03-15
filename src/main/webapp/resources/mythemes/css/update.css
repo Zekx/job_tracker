@@ -1,17 +1,33 @@
 @CHARSET "UTF-8";
 
+
+#verticalLine {
+	 float:left;
+	 height:500px;
+	 width:1px;
+	 background-color: #F0F0F0;
+} 
+
 #ticketInfo{
-	padding: 0 0 20px 0;
+	padding: 20px 0 20px 0;
 	box-shadow: -5px 5px 30px 0 #F0F0F0;
     border-radius: 10px;
 }
 
 #updates{
-	padding: 20px 20px 20px 0;
+	padding: 20px 30px 20px 0;
+	height: 500px;
+    overflow: scroll;
+    overflow-x:hidden;
+    overflow-y:auto;
 }
 
 #info{
 	padding:20px 0 20px 20px;
+	height: 500px;
+    overflow: scroll;
+    overflow-x:hidden;
+    overflow-y:auto;
 }
 
 #updateform{
@@ -34,6 +50,10 @@
 	transition: all .5s;
 }
 
+th{
+	text-align:center;
+}
+
 .btn-primary.btn-outline{
 	color: #428bca;
 }
@@ -41,4 +61,40 @@
 .btnprimary.btn-outline:hover{
 	color: #fff;
 }
+
+.main{
+	background: #D3D3D3;
+	border: 1px solid;
+	border-spacing: 5px;
+	border-color: white;
+	border-radius: 20px 0 0 0;
+	padding: 5px 10px 5px 10px;
+}
+
+.main2{
+	background: #D3D3D3;
+	border: 1px solid;
+	border-spacing: 5px;
+	border-color: white;
+	border-radius: 0 20px 0 0;
+	padding: 5px 10px 5px 10px;
+}
+
+
+.main3{
+	background: #D3D3D3;
+	border: 1px solid;
+	border-spacing: 5px;
+	border-color: white;
+	border-radius: 20px 20px 0 0;
+}
+
+
+.sub{
+	word-wrap: break-word;
+	word-break: break-all;
+	white-space: normal;
+	padding: 5px 10px 5px 10px;
+}
+
 	
