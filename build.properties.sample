@@ -1,0 +1,13 @@
+app.domain=localhost/techit/
+app.email=techit@localhost.localdomain
+
+db.url=jdbc:mysql://localhost/techit?useSSL=false
+db.username=cysun
+db.password=abcd
+
+mail.smtp.server=localhost
+mail.smtp.username=cysun@localhost.localdomain
+mail.smtp.password=abcd
+
+log.file=D:/Temp/techit/techit.log
+log.level=debug

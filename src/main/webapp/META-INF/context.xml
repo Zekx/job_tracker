@@ -3,12 +3,9 @@
 	<Resource name="jdbc/mysqldb"
 		auth="Container"
 		type="javax.sql.DataSource"
-		maxActive="5"
-		maxIdle="3"
-		maxWait="10000"
-		username="cs4961stu01"
-		password=".XCGG1Bc"
+		username="${db.username}"
+		password="${db.password}"
 		driverClassName="com.mysql.jdbc.Driver"
-		url="jdbc:mysql://localhost:3306/cs4961stu01?useSSL=false"
+		url="${db.url}"
 	/>
 </Context>
