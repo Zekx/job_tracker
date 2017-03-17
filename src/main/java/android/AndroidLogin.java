@@ -78,23 +78,12 @@ public class AndroidLogin extends HttpServlet {
         String password = request.getParameter("password");
         
 		LoginFunction lf = new LoginFunction();
-		RetrieveData rd = null;
+		DataSource ds = (DataSource)request.getServletContext().getAttribute("dbSource");
+		RetrieveData rd = new RetrieveData((DataSource)request.getServletContext().getAttribute("dbSource"));
     	int check = 4;
     	try{
-			if (Boolean.valueOf(request.getServletContext().getAttribute("onServer").toString())){
-				DataSource ds = (DataSource)request.getServletContext().getAttribute("dbSource");
-				rd = new RetrieveData(ds);
-				check = lf.checkSystemAccountDBSource(ds, user, password);
-			}
-			else{
-				String dbURL = request.getServletContext().getAttribute("dbURL").toString();
-				String dbUser = request.getServletContext().getAttribute("dbUser").toString();
-				String dbPass = request.getServletContext().getAttribute("dbPass").toString();
-				rd = new RetrieveData(dbURL, dbUser, dbPass);
-				
-				check = lf.checkSystemAccount(dbURL, dbUser, dbPass, user, password);
-				System.out.println("Login location");
-			}
+    		check = lf.checkSystemAccountDBSource(ds, user, password);
+    		
     	} catch (SQLException sqle) {
     		jsonObj.addProperty("error", "Something went wrong, please try again later!");
 			System.out.print(sqle.toString());
