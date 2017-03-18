@@ -18,10 +18,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import controller.Login;
 import external.ActiveDirectory;
 import function.LoginFunction;
 import function.RetrieveData;
@@ -49,6 +52,7 @@ public class AndroidLogin extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("Performing Android Login Authenication...");
+		Logger loginLog = LoggerFactory.getLogger(Login.class);
 		
 		/*String text = "";
         StringBuffer sb = new StringBuffer();
@@ -85,8 +89,11 @@ public class AndroidLogin extends HttpServlet {
     		check = lf.checkSystemAccountDBSource(ds, user, password);
     		
     	} catch (SQLException sqle) {
+    		loginLog.error("SQL Error @ Login.", sqle);
+    		System.out.println("Something went wrong, please try again later!");
     		jsonObj.addProperty("error", "Something went wrong, please try again later!");
 			System.out.print(sqle.toString());
+			response.getWriter().println(jsonObj);
 			return;
 		}
     	/*
@@ -116,9 +123,13 @@ public class AndroidLogin extends HttpServlet {
 			if( lf.getSystemAccount().getLastName().isEmpty() || lf.getSystemAccount().getPhoneNumber().isEmpty() || 
 					lf.getSystemAccount().getEmail().isEmpty() ){
 				jsonObj.addProperty("firstLogin?", true);
+				response.getWriter().println(jsonObj);
+				return;
 			}
 			else{
 				jsonObj.addProperty("firstLogin?", false);
+				response.getWriter().println(jsonObj);
+				return;
 			}
     	}
     	else{
@@ -158,6 +169,8 @@ public class AndroidLogin extends HttpServlet {
 		            	
 		            	//request.getRequestDispatcher("/WEB-INF/FirstLoginUpdate.jsp").forward(request, response);
 		            	jsonObj.addProperty("firstLogin?", true);
+		            	response.getWriter().println(jsonObj);
+		            	return;
 	            	}
 	            	else{
 	            		// This should be when check == 1 and NOT 2 or 3.
@@ -185,17 +198,19 @@ public class AndroidLogin extends HttpServlet {
 	        			if( lf.getSystemAccount().getLastName().isEmpty() || lf.getSystemAccount().getPhoneNumber().isEmpty() || 
 	        					lf.getSystemAccount().getEmail().isEmpty() ){
 	        				jsonObj.addProperty("firstLogin?", true);
+	        				response.getWriter().println(jsonObj);
+	        				return;
 	        			}
 	        			else{
 	        				jsonObj.addProperty("firstLogin?", false);
+	        				response.getWriter().println(jsonObj);
+	        				return;
 	        			}
 	            	}
 	            	}else{
 	            		// This is when check = 0, 1, or 2
 	        			result.close();
 		            	activeDirectory.closeLdapConnection();
-	            		
-		    			jsonObj.addProperty("error", "Username or password was invalid!");
 	            	}
 	            }
 	            catch(Exception e){
@@ -215,21 +230,25 @@ public class AndroidLogin extends HttpServlet {
 		    			// Check = 1 means the user belongs to the database but incorrect password.
 	    				
 						jsonObj.addProperty("error", "Invalid username or password, please try again!");
+						response.getWriter().println(jsonObj);
+        				return;
 	    			}
 	    			else{
 	    				jsonObj.addProperty("error", "Invalid username or password, please try again!");
+	    				response.getWriter().println(jsonObj);
+        				return;
 	    			}
 	    		}
 	    		else
 	    		{
 	    			jsonObj.addProperty("error", "Invalid username or password, please try again!");
+	    			response.getWriter().println(jsonObj);
+    				return;
 	    		}
 
     		}
 			
     	}
-    	
-    	response.getWriter().println(jsonObj);
 	}
 
 }
