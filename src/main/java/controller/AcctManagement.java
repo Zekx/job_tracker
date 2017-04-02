@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import function.RetrieveData;
+import function.StringFilter;
 /**
  * The AcctManagement Servlet, which corresponds to AcctManagement.jsp, hosts a 
  * variety of functions that is only accessible by the System Administrator. Some of the 
@@ -58,7 +59,7 @@ public class AcctManagement extends HttpServlet {
 			String firstName = request.getParameter("firstName").replace(" ", "");
 			String lastName = request.getParameter("lastName").replace(" ", "");
 			String username = request.getParameter("username").replace(" ", "");
-			String password = request.getParameter("password").replace(" ", ""); 
+			String password = ""; 
 			String email = request.getParameter("email").replace(" ", "");
 			String phoneNumber = request.getParameter("phoneNumber");
 			String Position = request.getParameter("Position"); 
@@ -99,20 +100,47 @@ public class AcctManagement extends HttpServlet {
 					position = 3;
 				}
 				
+				boolean regular = true;
+				StringFilter sf = new StringFilter();
+				if(sf.filterNull(request.getParameter("password")).isEmpty()){
+					regular = false;
+					password = request.getParameter("password").replace(" ", "");
+				}
+				
 				try(Connection c = ((DataSource)request.getServletContext().getAttribute("dbSource")).getConnection()){
-					String insert_user = "insert into users (firstname, lastname, pass, username, "
-							+ "phone, email, department, position, unit_id) values(?, ?, ?, ?, ?, ?, ?, ?,?)";
+					String insert_user;
+					
+					if(regular){
+						insert_user = "insert into users (firstname, lastname, pass, username, "
+								+ "phone, email, department, position, unit_id) values(?, ?, ?, ?, ?, ?, ?, ?,?)";
+					}
+					else{
+						insert_user = "insert into users (firstname, lastname, username, "
+								+ "phone, email, department, position, unit_id) values(?, ?, ?, ?, ?, ?, ?,?)";
+					}
 					
 					try(PreparedStatement pstmt2 = c.prepareStatement(insert_user)){
-						pstmt2.setString(1, firstName);
-						pstmt2.setString(2, lastName);
-						pstmt2.setString(3, org.apache.commons.codec.digest.DigestUtils.sha256Hex(password));
-						pstmt2.setString(4, username);
-						pstmt2.setString(5, phoneNumber);
-						pstmt2.setString(6, email);
-						pstmt2.setString(7, department);
-						pstmt2.setInt(8, position);
-						pstmt2.setInt(9, UnitId);
+						if(regular){
+							pstmt2.setString(1, firstName);
+							pstmt2.setString(2, lastName);
+							pstmt2.setString(3, org.apache.commons.codec.digest.DigestUtils.sha256Hex(password));
+							pstmt2.setString(4, username);
+							pstmt2.setString(5, phoneNumber);
+							pstmt2.setString(6, email);
+							pstmt2.setString(7, department);
+							pstmt2.setInt(8, position);
+							pstmt2.setInt(9, UnitId);
+						}
+						else{
+							pstmt2.setString(1, firstName);
+							pstmt2.setString(2, lastName);
+							pstmt2.setString(3, username);
+							pstmt2.setString(4, phoneNumber);
+							pstmt2.setString(5, email);
+							pstmt2.setString(6, department);
+							pstmt2.setInt(7, position);
+							pstmt2.setInt(8, UnitId);
+						}
 						pstmt2.executeUpdate();
 						
 						acctManageLog.info("System Admin. " + request.getSession().getAttribute("user").toString()
