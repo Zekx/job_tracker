@@ -190,7 +190,7 @@ ul.tab li a:focus, .active {
 						type="text" class="form-control" name="username">
 				</div>
 				<div class="form-group col-xs-5 col-md-5">
-					<label for="password">Password <font color="red">*</font></label> <input
+					<label for="password">Password (AD USER account if empty)</label> <input
 						type="text" class="form-control" name="password">
 				</div>
 				<div class="form-group col-xs-5 col-md-5">
