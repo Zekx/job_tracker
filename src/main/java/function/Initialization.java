@@ -8,6 +8,7 @@ import java.util.Properties;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.naming.InitialContext;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.sql.DataSource;
@@ -32,23 +33,25 @@ public class Initialization implements ServletContextListener {
 		Logger initLog = LoggerFactory.getLogger(Initialization.class); 
 		
 		// ------------- Email SMTP Setup -------------------
-		final String user = "techit.csula@gmail.com";
-		final String pass = ".XCGG1Bc";
+		// final String user = "techit.csula@gmail.com";
+		// final String pass = ".XCGG1Bc";
 		
+		ServletContext context = sce.getServletContext();
 		// Setting the properties object for email
 		Properties props = new Properties();
-		props.put("mail.smtp.auth", "true");
-		props.put("mail.smtp.starttls.enable", "true");
-		props.put("mail.smtp.host", "smtp.gmail.com");
-		props.put("mail.smtp.port", "587");
-		props.put("mail.smtp.user", user);
-		props.put("mail.smtp.pass", pass);
+		// props.put("mail.smtp.auth", "true");
+		// props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.host", context.getInitParameter( "mail.smtp.server" ));
+		// props.put("mail.smtp.port", "587");
+		props.put("mail.smtp.user", context.getInitParameter( "mail.smtp.username" ));
+		props.put("mail.smtp.pass", context.getInitParameter( "mail.smtp.password" ));
 		
-		Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+/*		Session session = Session.getInstance(props, new javax.mail.Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
 				return new PasswordAuthentication(user, pass);
 			}
-		});
+		}); */
+		Session session = Session.getInstance( props );
 		
 		// ------------- Domain of website -------------------------
 		// This is meant for URL linking in email (ex: cs3.calstatela.edu)
@@ -62,7 +65,7 @@ public class Initialization implements ServletContextListener {
 		sce.getServletContext().setAttribute("departmentList", departmentList);
 		sce.getServletContext().setAttribute("properties", props);
 		sce.getServletContext().setAttribute("session", session);
-		sce.getServletContext().setAttribute("email", user);
+		sce.getServletContext().setAttribute("email", context.getInitParameter( "app.email" ));
 		sce.getServletContext().setAttribute("domain", domain);
 		// ------------- DataSource setup -------------------
 

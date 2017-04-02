@@ -1,12 +1,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>cs4961.maven.techit</groupId>
+	<groupId>edu.csula.cs</groupId>
 	<artifactId>techit</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<build>
-		<finalName>springmvc</finalName>
+		<finalName>techit</finalName>
+        <filters>
+            <filter>build.properties</filter>
+        </filters>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -17,6 +26,23 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.0.0</version>
+        <configuration>
+          <webResources>
+            <resource>
+              <directory>${basedir}/src/main/webapp</directory>
+              <filtering>true</filtering>
+              <includes>
+                <include>WEB-INF/web.xml</include>
+                <include>META-INF/context.xml</include>
+              </includes>
+            </resource>
+          </webResources>
+        </configuration>
+      </plugin>
 		</plugins>
 	</build>
 	<dependencies>
@@ -57,19 +83,9 @@
 			<version>v1-rev48-1.22.0</version>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-		</dependency>
-		<dependency>
 			<groupId>javax.mail</groupId>
 			<artifactId>mail</artifactId>
 			<version>1.4</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-dbutils</groupId>
-			<artifactId>commons-dbutils</artifactId>
-			<version>1.6</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -82,10 +98,14 @@
 			<version>2.6</version>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.24</version>
+            		<groupId>commons-dbutils</groupId>
+            		<artifactId>commons-dbutils</artifactId>
+            		<version>1.6</version>
+        	</dependency>
+		<dependency>
+		    	<groupId>org.slf4j</groupId>
+		    	<artifactId>slf4j-log4j12</artifactId>
+		    	<version>1.7.24</version>
 		</dependency>
 	</dependencies>
-
 </project>
