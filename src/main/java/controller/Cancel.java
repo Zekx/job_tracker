@@ -85,7 +85,7 @@ public class Cancel extends HttpServlet {
             	final String subjectDetails = "TECHIT - Ticket #" + id + " was canceled by the requestor.";
             	final String emailDetails = "The following ticket was canceled by the requestor. \n" 
             			+ ticket.toString() + "\n" 
-            			+ "\n" + domain + "Details?id=" + id;
+            			+ "\n" + "http://" + domain + "Details?id=" + id;
             	final List<String> requestorEmail = rd.getSupervisorEmails(ticket.getUnitId());
             	if(requestorEmail.size() > 0){
 	            	new Thread(new Runnable(){
@@ -118,7 +118,7 @@ public class Cancel extends HttpServlet {
             			+ "========================================\n"
             			+ ticket.toString() + "\n"
             			+ "========================================\n"
-            			+"Reason: " + rejected + "\n" + domain + "Details?id=" + id;
+            			+"Reason: " + rejected + "\n" + "http://" + domain + "Details?id=" + id;
             	final String requestorEmail = sf.filterNull(rd.getRequestorEmailFromTicket(id));
             	if(!requestorEmail.isEmpty()){
 	            	new Thread(new Runnable(){

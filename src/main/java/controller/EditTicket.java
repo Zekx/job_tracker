@@ -149,7 +149,7 @@ public class EditTicket extends HttpServlet {
 				final List<String> allEmails = emails;
 				final String emailSubject = "TECHIT - Ticket #" + id + " has been edited by the requestor.";
 				final String emailDetails = "The following ticket has been edited by the requestor: " + "\n" + ticket.toString() 
-				+ "\n" + domain + "Details?id=" + id;
+				+ "\n" + "http://" +domain + "Details?id=" + id;
 				
 				new Thread(new Runnable(){
 					public void sendEmail(){
