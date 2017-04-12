@@ -139,7 +139,10 @@ public class CreateTicket extends HttpServlet {
 						+ "Details: " + details + "\n"
 						+ link;
 				
-				final List<String> emails = rd.getSupervisorEmails(units);
+				List<String> allEmails = rd.getSupervisorEmails(units); 
+				allEmails.add(email);
+				
+				final List<String> emails = allEmails;
 				final String emailSubject = "TECHIT - Ticket #" + id + " has been created.";
 				
 				if(emails.size() > 0){

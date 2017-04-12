@@ -832,5 +832,28 @@ public class RetrieveData {
 		
 		return id;
 	}
+	
+	public boolean userNameExists(String username){
+		boolean found = false;
+		String query = "select * from users where username = ?";
+		try(Connection c = this.datasource.getConnection();
+			PreparedStatement pstmt = c.prepareStatement(query)){
+			
+			pstmt.setString(1, username);
+			
+			try(ResultSet rs = pstmt.executeQuery()){
+				if(rs.isBeforeFirst()){
+					found = true;
+				}
+			}
+			
+		}catch(SQLException e){
+			rdLog.error("SQL Error @ RetrieveData's getTicketIdFromUsernameUsingTime method.", e);
+		}catch(Exception e){
+			rdLog.error("Non-SQL Error @ RetrieveData's getTicketIdFromUsernameUsingTime method.", e);
+		}
+		
+		return found;
+	}
 
 }
