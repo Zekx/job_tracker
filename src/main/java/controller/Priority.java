@@ -112,7 +112,7 @@ public class Priority extends HttpServlet {
 			        			+ "Ticket info: \n"
 			        			+ ticket.toString() + "\n"
 			        			+ "\n====================================================\n"
-			        			+ domain + "Details?id=" + id;
+			        			+ "http://" + domain + "Details?id=" + id;
 			        	// Sending the technician the new update notice
 			        	
 			        	new Thread(new Runnable(){

@@ -122,10 +122,10 @@ public class CreateTicket extends HttpServlet {
 				int id = rd.getTicketIdFromUsernameUsingTime(request.getSession().getAttribute("user").toString());
 				
 				if(id != 0){
-					link = domain + "Details?id=" + id;
+					link = "http://" + domain + "Details?id=" + id;
 				}
 				else{
-					link = domain + "Home";
+					link = "http://" + domain + "Home";
 				}
 				
 				createTicketLog.info("User " + request.getSession().getAttribute("user").toString()

@@ -128,7 +128,7 @@ public class Update extends HttpServlet {
 					final String emailSubject = "TECHIT - Ticket #" + ticketId + " has been completed.";
 					final String emailDetails = "The following ticket has been completed: " 
 							+ "\n" + ticket.toString() + "\n" 
-							+ domain + "Details?id=" + ticketId;
+							+ "http://" +  domain + "Details?id=" + ticketId;
 					
 					new Thread(new Runnable(){
 						public void sendEmail(){
@@ -155,7 +155,7 @@ public class Update extends HttpServlet {
 							+ "\nThe following ticket has been closed: " 
 							+ "\n" + ticket.toString()
 							+ "\n==========================================\n"
-							+ "\n" + domain + "Details?id=" + ticketId;
+							+ "\n" + "http://" + domain + "Details?id=" + ticketId;
 					
 					new Thread(new Runnable(){
 						public void sendEmail(String emailDetails){
@@ -177,7 +177,7 @@ public class Update extends HttpServlet {
 							+ "\nThe following ticket has been updated: " 
 							+ "\n" + ticket.toString()
 							+ "\n==========================================\n"
-							+ "\n" + domain + "Details?id=" + ticketId;
+							+ "\n" + "http://" + domain + "Details?id=" + ticketId;
 					
 					new Thread(new Runnable(){
 						public void sendEmail(String emailDetails){

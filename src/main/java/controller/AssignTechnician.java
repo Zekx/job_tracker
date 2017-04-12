@@ -148,16 +148,16 @@ public class AssignTechnician extends HttpServlet {
 						final List<String> allEmails = techs;
 						final String requestorEmail = rd.getRequestorEmailFromTicket(ticketId);
 						final String emailSubject = "TECHIT - You have been assigned to ticket #" + ticketId;
-						final String emailDetails = "You have been assigned to ticket #" + ticketId 
-								+ "\n" + rd.getTicket(ticketId).toString()
-								+ "\n=================================================\n"
-								+ "\n" + domain + "Details?id=" + ticketId;
+						final String emailDetails = "You have been assigned to ticket #" + ticketId + "\n" 
+								+ rd.getTicket(ticketId).toString()+ "\n" 
+								+ "=================================================\n" + "\n"
+								+ "http://" + domain + "Details?id=" + ticketId;
 						
 						final String requestorEmailSubject = "TECHIT - Technician has been assigned to your ticket #" + ticketId;
-						final String requestorEmailDetails = "Technician has been assigned to the following ticket: "
-								+ "\n" + rd.getTicket(ticketId).toString()
-								+ "\n=================================================\n"
-								+ "\n" + domain + "Details?id=" + ticketId;
+						final String requestorEmailDetails = "Technician has been assigned to the following ticket: " + "\n" 
+								+ rd.getTicket(ticketId).toString()+ "\n" 
+								+ "=================================================\n" + "\n" 
+								+ "http://" + domain + "Details?id=" + ticketId;
 						final String emailFrom = request.getServletContext().getAttribute("email").toString();
 						
 						new Thread(new Runnable(){
@@ -265,7 +265,7 @@ public class AssignTechnician extends HttpServlet {
 				final String requestorEmailDetails = "Technician has been assigned to the following ticket: "
 						+ "\n" + ticket.toString()
 						+ "\n=================================================\n"
-						+ "\n" + domain + "Details?id=" + id;
+						+ "\n" + "http://" + domain + "Details?id=" + id;
 				final String emailFrom = request.getServletContext().getAttribute("email").toString();
 				
 				new Thread(new Runnable(){
