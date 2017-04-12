@@ -56,6 +56,7 @@ public class AcctManagement extends HttpServlet {
 		String Search = request.getParameter("Search");
 		if(Search == null)
 		{
+			RetrieveData rd = new RetrieveData((DataSource)request.getServletContext().getAttribute("dbSource"));
 			String firstName = request.getParameter("firstName").replace(" ", "");
 			String lastName = request.getParameter("lastName").replace(" ", "");
 			String username = request.getParameter("username").replace(" ", "");
@@ -72,16 +73,31 @@ public class AcctManagement extends HttpServlet {
 			if(firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || phoneNumber.isEmpty() || Position.isEmpty() || username.isEmpty())
 			{
 
+				request.setAttribute("userList", rd.getAllUsers());
 				request.setAttribute("positionList", Arrays.asList("USER", "TECHNICIAN", "SUPERVISING TECHNICIAN", "SYSTEM ADMINISTRATOR"));
+				request.setAttribute("unitList", rd.getAllUnits());		
+				
 				request.setAttribute("errorMessage", "Some fields are missing!");
 				request.getRequestDispatcher("/WEB-INF/AcctManagement.jsp").forward(request, response);
 			}
 			else if( phoneNumber.length() < 14){
 
+				request.setAttribute("userList", rd.getAllUsers());
 				request.setAttribute("positionList", Arrays.asList("USER", "TECHNICIAN", "SUPERVISING TECHNICIAN", "SYSTEM ADMINISTRATOR"));
+				request.setAttribute("unitList", rd.getAllUnits());		
+				
 				request.setAttribute("errorMessage", "Incorrect phone number format!");
 				request.getRequestDispatcher("/WEB-INF/AcctManagement.jsp").forward(request, response);
 
+			}
+			else if(rd.userNameExists(username)){
+				
+				request.setAttribute("userList", rd.getAllUsers());
+				request.setAttribute("positionList", Arrays.asList("USER", "TECHNICIAN", "SUPERVISING TECHNICIAN", "SYSTEM ADMINISTRATOR"));
+				request.setAttribute("unitList", rd.getAllUnits());		
+				
+				request.setAttribute("errorMessage", "Username already existed!");
+				request.getRequestDispatcher("/WEB-INF/AcctManagement.jsp").forward(request, response);
 			}
 			else{
 				int position;
@@ -100,12 +116,15 @@ public class AcctManagement extends HttpServlet {
 					position = 3;
 				}
 				
-				boolean regular = true;
-				StringFilter sf = new StringFilter();
-				if(sf.filterNull(request.getParameter("password")).isEmpty()){
-					regular = false;
+				boolean regular = false;
+				
+				if(request.getParameter("password") != null){
+					regular = true;
 					password = request.getParameter("password").replace(" ", "");
 				}
+				
+
+				System.out.println(password);
 				
 				try(Connection c = ((DataSource)request.getServletContext().getAttribute("dbSource")).getConnection()){
 					String insert_user;
@@ -155,7 +174,6 @@ public class AcctManagement extends HttpServlet {
 								+ "Unit: " + UnitId);
 					}
 					
-					RetrieveData rd = new RetrieveData((DataSource)request.getServletContext().getAttribute("dbSource"));
 					request.setAttribute("userList", rd.getAllUsers());
 					request.setAttribute("unitList", rd.getAllUnits());
 
