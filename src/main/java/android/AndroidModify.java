@@ -90,7 +90,7 @@ public class AndroidModify extends HttpServlet {
 		
 		StringFilter sf = new StringFilter();
 		String updateMessage = sf.filterNull(request.getParameter("UpdateDetails"));
-		
+		updateMessage = updateMessage.replace("_", " ");
 		RetrieveData rd = new RetrieveData((DataSource)request.getServletContext().getAttribute("dbSource"));
 		Logger updateTicketLog = LoggerFactory.getLogger(Update.class);
 		if(!updateMessage.isEmpty())
