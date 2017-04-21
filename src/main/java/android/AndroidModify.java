@@ -46,10 +46,10 @@ public class AndroidModify extends HttpServlet {
 		
 		String currentProgress = request.getParameter("NewProgress");
 		String modifier = request.getParameter("Modifier");
-		boolean change = Boolean.parseBoolean(request.getParameter("change"));
-		int ticketId = Integer.parseInt(request.getParameter("ticketID"));
-		int unitID = Integer.parseInt(request.getParameter("unitID"));
-		String username = request.getParameter("username");
+		boolean change = Boolean.parseBoolean(request.getParameter("Change"));
+		int ticketId = Integer.parseInt(request.getParameter("TicketID"));
+		String unitID = request.getParameter("UnitID");
+		String username = request.getParameter("Username");
 		System.out.println(currentProgress + modifier + change + ticketId + unitID + username);
 		
 		
@@ -57,7 +57,7 @@ public class AndroidModify extends HttpServlet {
 		
 		JsonObject jsonObj = new JsonObject();
 		
-		if(request.getParameter("ticketID") == null || request.getParameter("Modifier") == null || request.getParameter("UpdateDetails") == null ||request.getParameter("NewProgress") == null ||request.getParameter("Change") == null || request.getParameter("unitID")== null || request.getParameter("username") == null ){
+		if(request.getParameter("TicketID") == null || request.getParameter("Modifier") == null || request.getParameter("UpdateDetails") == null ||request.getParameter("NewProgress") == null ||request.getParameter("Change") == null || request.getParameter("UnitID")== null || request.getParameter("Username") == null ){
 			jsonObj.addProperty("error", "The parameter fields are missing!");
 			System.out.println("Error! Inputs are incorrect!");
 			response.getWriter().println(jsonObj);
@@ -228,9 +228,10 @@ public class AndroidModify extends HttpServlet {
 					}).start();	
 				}
 				
-				//String ticketInfoInJSON = new Gson().toJson(rd.getUserTicket(username, 2 , unitID));
-				//jsonObj.addProperty("updatedTickets", ticketInfoInJSON);
-				//response.getWriter().println(jsonObj);
+				String ticketUpdateJSON = new Gson().toJson(rd.getTicketUpdates(ticketId));
+				System.out.println(ticketUpdateJSON);
+				jsonObj.addProperty("updates", ticketUpdateJSON);
+				response.getWriter().println(jsonObj);
 				
 				
 				
