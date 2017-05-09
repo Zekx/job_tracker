@@ -20,3 +20,15 @@ insert into tickets (username, userFirstName, userLastName, phone, email, Progre
     ('jojo', 'Joseph', 'Joestar', '(666) 666-6666', 'jojo@localhost.localdomin', 0, 1,
     'Projector malfunction.', 'The projector is broken in room A220.', 
     '2016-10-13 00:00:01', '2016-10-13 00:00:01', 'ET A220');
+
+insert into tickets (username, userFirstName, userLastName, phone, email, Progress, unitId,
+    subject, details, startDate, lastUpdated, ticketLocation) values
+    ('blee', 'Bob', 'Lee', '(666) 666-6655', 'blee@localhost.localdomin', 0, 1,
+    'One of the computers broke down!', 'Constant bluescreen for one of the lab computers. Need help to get it rebooted.', 
+    '2016-10-16 00:00:01', '2016-10-16 00:00:01', 'ET Lab');
+    
+insert into tickets (username, userFirstName, userLastName, phone, email, Progress, unitId,
+    subject, details, startDate, lastUpdated, ticketLocation) values
+    ('blee', 'Bob', 'Lee', '(666) 666-6655', 'blee@localhost.localdomin', 0, 1,
+    'Whiteboard feel down.', 'Screws on the whiteboard fell off the board. Needs some new ones for it.', 
+    '2016-10-18 00:00:01', '2016-10-18 00:00:01', 'ET A309');

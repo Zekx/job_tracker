@@ -150,6 +150,9 @@ public class AndroidAssign extends HttpServlet {
 					this.sendEmail();
 				}
 			}).start();
+			
+			c.close();
+			
 			Ticket updatedTicket = rd.getTicket(id);
 			jsonObj.addProperty("id", id);
 			jsonObj.addProperty("username", user);

@@ -46,6 +46,7 @@ public class Login extends HttpServlet {
 			loginLog.error("SQL Error @ Login.", sqle);
 			request.setAttribute("errorMessage", "Something went wrong, please try again later!");
 			request.getRequestDispatcher("/WEB-INF/Login.jsp").forward(request, response);
+			sqle.printStackTrace();
 			return;
 		}
     	/*

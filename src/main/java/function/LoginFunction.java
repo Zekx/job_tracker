@@ -33,17 +33,17 @@ public class LoginFunction {
 	
 	//NOTE: This version is the only one working for the Android Application. Further improvments of the method will be necessary for the mobile
 	//application.
-	public int checkSystemAccount(String dbURL, String dbUser, String dbPass, String user, String password) throws SQLException 
+	/*public int checkSystemAccount(String dbURL, String dbUser, String dbPass, String user, String password) throws SQLException 
 	{
 		StringFilter sf = new StringFilter();
-		 /*This method checks the input information with the one in the database.
+		 This method checks the input information with the one in the database.
 		 * The method returns one of the following:
 		 * 		0 -- User doesn't exist in the database
 		 * 		1 -- User exist but since password is empty, the account is not
 		 * 				 a special account
 		 * 		2 -- User exists but incorrect password
 		 * 		3 -- User exists, password is correct, user information is saved
-		 * 				into the LoginFunction class variable*/
+		 * 				into the LoginFunction class variable
 
 		
 		try {
@@ -134,7 +134,7 @@ public class LoginFunction {
 		}
 		
 		return returnInt;
-	}
+	}*/
 	
 	/**
 	 *  This method uses the DataSource param object to create a connection to the database.
@@ -172,7 +172,9 @@ public class LoginFunction {
 		Logger loginFunctionLog = LoggerFactory.getLogger(LoginFunction.class);
 		int returnInt = 4;
 		
-		try (Connection c = datasource.getConnection()){	
+		Connection c = null;
+		try{	
+			c = datasource.getConnection();
 			String search_user = "select * from users where username = ?";
             try(PreparedStatement pstmt = c.prepareStatement( search_user )){
 	            pstmt.setString( 1, user );
@@ -238,8 +240,11 @@ public class LoginFunction {
 		            else{
 		            	returnInt =  0;	 // User does not exist in the system
 		            }
+		            rs.close();
 	            }
+	            pstmt.close();
             }
+            c.close();
 		}catch(SQLException e){
 			loginFunctionLog.error("SQL Error @ LoginFunction.", e);
 		}catch(Exception e){

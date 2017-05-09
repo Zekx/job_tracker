@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
 import java.sql.SQLException;
 
 import javax.naming.NamingEnumeration;
@@ -79,7 +80,8 @@ public class AndroidLogin extends HttpServlet {
         JsonObject jsonObj = new JsonObject();
         
         String user = request.getParameter("username");
-        String password = request.getParameter("password");
+        
+        String password = URLDecoder.decode(request.getParameter("password"));
         
 		LoginFunction lf = new LoginFunction();
 		DataSource ds = (DataSource)request.getServletContext().getAttribute("dbSource");

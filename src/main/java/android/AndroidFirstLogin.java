@@ -15,8 +15,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbutils.DbUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
+
+import controller.FirstLoginUpdate;
 
 /**
  * This servlet is the controller for FirstLoginUpdate.jsp
@@ -37,12 +41,16 @@ public class AndroidFirstLogin extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String username = "";
 		String firstName = "";
 		String lastName = "";
 		String email = "";
 		String phoneNumber = "";
 		String department = "";
 		
+		if(request.getParameter("username") != null){
+			username = request.getParameter("username").replace(" ", "");
+		}
 		if(request.getParameter("firstName") != null){
 			firstName = request.getParameter("firstName").replace(" ", "");
 		}
@@ -65,7 +73,7 @@ public class AndroidFirstLogin extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Cache-Control", "no-cache");
 		
-		if(firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || phoneNumber.isEmpty())
+		if(username.isEmpty() || firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || phoneNumber.isEmpty())
 		{
 			
     		jsonObj.addProperty("firstname", firstName);
@@ -90,78 +98,70 @@ public class AndroidFirstLogin extends HttpServlet {
 			response.getWriter().println(jsonObj);
 		}
 		else{
-			Connection c = null;
-			PreparedStatement pstmt = null;
-			ResultSet rs = null;
-			try
-			{
-				if(Boolean.valueOf(request.getServletContext().getAttribute("onServer").toString()))
-				{
-					c = ((DataSource)request.getServletContext().getAttribute("dbSource")).getConnection();
-				}
-				else{
-					String url = "jdbc:mysql://cs3.calstatela.edu/cs4961stu01";
-					String db_user = "cs4961stu01";
-					String db_pass = ".XCGG1Bc";
-
-					c = DriverManager.getConnection(url, db_user, db_pass);
-				}
+			
+			Logger firstLoginLog = LoggerFactory.getLogger(FirstLoginUpdate.class);
+			
+			try(Connection c = ((DataSource)request.getServletContext().getAttribute("dbSource")).getConnection()){
+				
+				jsonObj.addProperty("Valid", false);
+				
 				String search_user = "select * from users where username = ?";
-	            pstmt = c.prepareStatement( search_user );
-	            pstmt.setString( 1, request.getParameter("username").toString() );
+	            try(PreparedStatement pstmt = c.prepareStatement( search_user )){
+	            	pstmt.setString( 1, username );
 	            
-	            rs = pstmt.executeQuery();
-	            
-	            if(rs.next())
-	            {
-	            	String update_user = "update users set firstname = ?, lastname = ?, email = ?, phone = ?, department = ? where username = ?";
-	            	PreparedStatement pstmt2 = c.prepareStatement(update_user);
-	            	pstmt2.setString(1, firstName);
-	            	pstmt2.setString(2, lastName);
-	            	pstmt2.setString(3, email);
-	            	pstmt2.setString(4, phoneNumber);
-	            	pstmt2.setString(5, department);
-	            	pstmt2.setString(6, request.getParameter("username"));
-		            pstmt2.executeUpdate();
-
+		            try(ResultSet rs = pstmt.executeQuery()){
+		            
+			            if(rs.next())
+			            {
+			            	String update_user = "update users set firstname = ?, lastname = ?, email = ?, phone = ? where username = ?";
+			            	try(PreparedStatement pstmt2 = c.prepareStatement(update_user)){
+				            	pstmt2.setString(1, firstName);
+				            	pstmt2.setString(2, lastName);
+				            	pstmt2.setString(3, email);
+				            	pstmt2.setString(4, phoneNumber);
+				            	pstmt2.setString(5, username);
+					            pstmt2.executeUpdate();
+			            	}
+			            }
+			            else
+			            {
+			            	String insert_user = "insert into users (firstname, lastname, pass, username, phone, email, position) values(?, ?, ?, ?, ?, ?, ?)";
+			            	try(PreparedStatement pstmt2 = c.prepareStatement(insert_user)){
+				            	pstmt2.setString(1, firstName);
+				            	pstmt2.setString(2, lastName);
+				            	pstmt2.setString(3, "");
+				            	pstmt2.setString(4, username);
+				            	pstmt2.setString(5, phoneNumber);
+				            	pstmt2.setString(6, email);
+				            	pstmt2.setInt(7, 3);
+				            	pstmt2.execute();
+			            	}
+			            }
+		            }
 	            }
-	            else
-	            {
-	            	String insert_user = "insert into users (firstname, lastname, pass, username, phone, department, email, position) values(?, ?, ?, ?, ?, ?, ?, ?)";
-	            	PreparedStatement pstmt2 = c.prepareStatement(insert_user);
-	            	pstmt2.setString(1, firstName);
-	            	pstmt2.setString(2, lastName);
-	            	pstmt2.setString(3, "");
-	            	pstmt2.setString(4, request.getParameter("username"));
-	            	pstmt2.setString(5, phoneNumber);
-	            	pstmt2.setString(6, department);
-	            	pstmt2.setString(7, email);
-	            	pstmt2.setInt(8, 3);
-	            	pstmt2.execute();
-
-	            }
-	            pstmt.close();
-	            rs.close();
-	            c.close();
 	            
+	            firstLoginLog.info("User " + username + " has updated their information "
+	            		+ "in FirstLoginUpdate.");
+				
+				//Creation was successful if the line reaches here...
+				jsonObj.addProperty("Valid", true);
+				
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+				firstLoginLog.error("SQL Error @ FirstLoginUpdate.", e);
 				e.printStackTrace();
-			}finally
-			{
-				DbUtils.closeQuietly(pstmt);
-				DbUtils.closeQuietly(rs);
-				DbUtils.closeQuietly(c);
+				jsonObj.addProperty("error", "There was an error connecting to the server!");
+			} catch (Exception e) {
+				firstLoginLog.error("Non-SQL Error @ FirstLoginUpdate.", e);
+				e.printStackTrace();
+				jsonObj.addProperty("error", "There was an error connecting to the server!");
 			}
-			if(request.getSession().getAttribute("errorMessage")!= null){
-				request.removeAttribute("errorMessage");
-			}
+			
 			jsonObj.addProperty("firstname", firstName);
     		jsonObj.addProperty("lastname", lastName);
     		jsonObj.addProperty("phoneNumber", phoneNumber);
     		jsonObj.addProperty("email", email);
     		jsonObj.addProperty("department", department);
-    		jsonObj.addProperty("Valid", true);
+    		jsonObj.addProperty("unit_id", 1);
 
     		response.getWriter().println(jsonObj);
 		}
