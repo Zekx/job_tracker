@@ -114,6 +114,7 @@ public class AndroidLogin extends HttpServlet {
     		jsonObj.addProperty("email", lf.getSystemAccount().getEmail());
     		jsonObj.addProperty("unit_id", lf.getSystemAccount().getUnitId());
     		jsonObj.addProperty("position", lf.getSystemAccount().getStatus());
+    		System.out.println(lf.getSystemAccount().getStatus());
 			
 			try {
 				String ticketInfoInJSON = new Gson().toJson(rd.getUserTicket(user, lf.getSystemAccount().getStatus(), lf.getSystemAccount().getUnitId()));

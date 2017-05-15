@@ -104,7 +104,7 @@ public class AndroidModify extends HttpServlet {
 			
 			try(Connection c = ((DataSource)request.getServletContext().getAttribute("dbSource")).getConnection()){
 				
-				if(!change){
+				if(change){
 					int status = 0;
 					
 					switch(currentProgress){
